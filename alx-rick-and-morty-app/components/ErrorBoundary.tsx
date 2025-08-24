@@ -1,18 +1,37 @@
-import ErrorBoundary from '@/components/ErrorBoundary';
-import type { AppProps } from "next/app";
-import * as Sentry from '@sentry/react';
+// components/ErrorBoundary.tsx
+import React from "react";
+import * as Sentry from "@sentry/react";
 
-componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-  Sentry.captureException(error, { extra: errorInfo });
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
 }
 
-
-function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <ErrorBoundary>
-      <Component {...pageProps} />
-    </ErrorBoundary>
-  );
+interface ErrorBoundaryState {
+  hasError: boolean;
 }
 
-export default MyApp;
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Report to Sentry
+    Sentry.captureException(error, { extra: errorInfo });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children;
+  }
+}
+
+export default ErrorBoundary;
