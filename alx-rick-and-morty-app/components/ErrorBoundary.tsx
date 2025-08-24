@@ -1,5 +1,14 @@
-const ErrorProneComponent: React.FC = () => {
-  throw new Error('This is a test error!');
-};
+import ErrorBoundary from '@/components/ErrorBoundary';
+import type { AppProps } from "next/app";
 
-export default ErrorProneComponent;
+
+
+function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <ErrorBoundary>
+      <Component {...pageProps} />
+    </ErrorBoundary>
+  );
+}
+
+export default MyApp;
